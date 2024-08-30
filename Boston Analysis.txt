@@ -1,0 +1,486 @@
+**Department of Statistics**
+
+**Jahangirnagar University**
+
+**Applied Statistics and Data Science under Weekend Masters(WM-ASDS)**
+
+**Course Name : Introduction to Data Science with Python**
+
+**Course Code : WM-ASDS04(Section:A)**
+
+**Course Teacher : Prof. Dr. Rumana Rois**
+
+**Submitted By: Mohammad Kabir Hosen**
+
+#import necessary libraries
+import pandas as pd
+import numpy as np
+from sklearn import datasets
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import roc_curve,RocCurveDisplay, plot_roc_curve, auc, roc_auc_score
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import GridSearchCV
+%matplotlib inline
+import warnings
+from sklearn import metrics
+warnings.filterwarnings("ignore") # To ignore warning for boston dataset
+
+# Load Boston Dataset
+boston = datasets.load_boston()
+boston_df = pd.DataFrame(boston.data,columns=boston.feature_names)
+boston_df['PRICE'] = boston.target
+
+boston_df.head()
+boston_df.shape
+
+#Last two digits of id is 41
+X=41
+x=.41
+datarowsSeries = [pd.Series([0.69+X,10+X,2.3+x,0+x,0.5+x,6.5+x,65.2+x,4.1+x,1+x,290+X,15+X,395+X,4.9+x,24.3+X], index=boston_df.columns ), 
+                  pd.Series([0.68+X,11+X,2.4+x,0+x,0.6+x,6.6+x,65.1+x,4.0+x,1+x,291+X,13+X,390+X,4.2+x,24.2+X], index=boston_df.columns ),
+                  pd.Series([0.67+X,12+X,2.5+x,0+x,0.4+x,6.5+x,65.3+x,4.2+x,1+x,292+X,14+X,392+X,4.3+x,24.1+X], index=boston_df.columns ), 
+                  pd.Series([0.66+X,13+X,2.4+x,0+x,0.7+x,6.5+x,65.4+x,4.1+x,1+x,293+X,16+X,391+X,4.4+x,24.2+X], index=boston_df.columns )]
+# new_data = boston_df.append(datarowsSeries , ignore_index=True)
+# converting series into dataframe
+datarowsSeries = pd.DataFrame(datarowsSeries)
+
+new_data = pd.concat([boston_df, datarowsSeries], axis=0, ignore_index=True)
+
+
+"""**Boxplot**"""
+
+#boxplot
+plt.boxplot(new_data.RAD)
+plt.title('Boxplot for RAD')
+plt.show()
+
+plt.boxplot(new_data.CRIM)
+plt.title('Boxplot for CRIM')
+plt.show()
+
+#fig, axs = plt.subplots(ncols=3, nrows=5, figsize=(10, 10))
+index = 0
+axs = axs.flatten()
+for j in new_data.items():
+    sns.histplot(j, ax=axs[index],kde=True)
+    index += 1
+plt.tight_layout()
+
+"""**BarDiagram**"""
+
+# Bar diagram
+objects = ('High', 'Low')
+x_pos = np.arange(len(objects))
+status_fre=[295, 215] # get the frequency value from df.status.value_counts()
+plt.figure(figsize=(8,5))
+plt.bar(x_pos, status_fre)
+plt.xticks(x_pos, objects)
+plt.ylabel('Number of Houses')
+plt.title('Price in High and Low Category')
+plt.show()
+
+# Pie Chart
+frequency=[295, 215]
+plt.figure(figsize=(8,5))
+plt.pie(frequency, labels=['High', 'Low'], colors=['#3e92c9','#e3974b'],  autopct='%.1f%%')
+plt.show()
+
+"""**Histogram**"""
+
+#Histogram
+plt.hist(new_data.RAD,color='c', bins=10)
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.title('Histogram of RAD')
+plt.show()
+
+"""**Scatter**"""
+
+#Scatter
+plt.scatter(new_data['RAD'],new_data['CRIM'], color = 'k')
+plt.xlabel('RAD')
+plt.ylabel('CRIM')
+plt.title('RAD vs CRIM')
+plt.show()
+
+#correlation
+cor=new_data.corr()
+cor
+
+#pairplot
+sns.pairplot(cor)
+plt.title('Correlation')
+
+plt.figure(figsize=(18,8))
+sns.heatmap(df,annot=True,linewidth=0.5)
+
+#Covariance
+new_data.cov()
+
+
+sns.pointplot(data=df, x="AGE", y="Price", dodge=True)
+
+new_data.head()
+
+new_data.tail()
+
+new_data.shape
+
+new_data.columns
+
+new_data.describe()
+
+new_data.info()
+
+new_data.isnull().sum()
+
+new_data.mean()
+
+new_data.median()
+
+new_data.mode()
+
+vars = ['CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','Price']
+df = df[vars]
+df
+
+new_data['Price']=np.where(new_data['Price']> 20, 1,0)
+new_data['Price']=new_data.['Price'].map({0:'Low',1:"High'})
+new_data['Price'].head(100)
+
+new_data['Price'].value_counts()
+
+plt.figure(figsize=(15,8))
+sns.pairplot(df,hue='Price')
+
+plt.figure(figsize=(15,7))
+sns.relplot(data=new_data,x='CRIM', y="Price", hue="Price")
+
+new_data[new_data.index.duplicated()]
+
+plt.figure(figsize=(8,4))
+sns.catplot(data=df, x="AGE",y='TAX',kind='boxen')
+
+plt.figure(figsize=(8,4))
+sns.catplot(data=df, x="TAX",y='Price',kind='box')
+
+"""**Histplot**"""
+
+plt.figure(figsize=(10,5))
+sns.histplot(data=df,x='Price',bins=30)
+
+plt.figure(figsize=(10,5))
+sns.histplot(data=df,x='Price',bins=30,kde=True)
+
+"""# Train,Test Data"""
+
+X = new_data.drop('Price',axis='columns') 
+y =new_data['Price']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=3000)
+X_train
+
+############### DT #################################################
+DTclf=tree.DecisionTreeClassifier()
+DTclf.fit(X_train, y_train)
+#####Predict probabilities for the test data.
+probsDT = DTclf.predict_proba(X_test)
+####Keep Probabilities of the positive class only.
+probsDT = probsDT[:, 1]
+
+###Compute the AUC Score.
+auc = roc_auc_score(y_test, probsDT)
+
+
+print('Decision Tree AUC:', auc)
+###Get the ROC Curve
+fpr, tpr, thresholds = roc_curve(y_test, probsDT)
+####Plot ROC Curve 
+fig = plt.figure(figsize = (7,5))
+lw = 2
+plt.plot(fpr, tpr, color='red',lw=lw, label='DT(AUC = %0.4f)' % auc)
+plt.plot([0, 1], [0, 1], color='b', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+##plt.title('Receiver operating characteristic')
+plt.title("Decision Tree ROC")
+plt.legend(loc="lower right")
+plt.show()
+
+################# DT #################################################
+
+DTclf=tree.DecisionTreeClassifier()
+
+DTclf.fit(X_train, y_train)
+y_pred= DTclf.predict(X_test) ##y_test
+
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+print('############# DT ###############')
+print(classification_report(y_test, y_pred))
+
+
+##Print Matrix
+cm1 = confusion_matrix(y_test,y_pred)
+print('Confusion Matrix : \n', cm1)
+
+total1=sum(sum(cm1))
+
+#####from confusion matrix calculate Prediction Positive
+Prediction_Pos= cm1[0,0]/(cm1[0,0]+cm1[1,0])
+print ('Predictive value Positive :', Prediction_Pos)
+
+#####from confusion matrix calculate Prediction Negative
+Prediction_Neg= cm1[1,1]/(cm1[1,1]+cm1[0,1])
+print ('Predictive value Negative :', Prediction_Neg)
+
+#####from confusion matrix calculate accuracy
+accuracy1=(cm1[0,0]+cm1[1,1])/total1
+print ('Accuracy : ', accuracy1)
+
+#####from confusion matrix calculate Sensitivity
+sensitivity1 = cm1[0,0]/(cm1[0,0]+cm1[0,1])
+print('Sensitivity : ', sensitivity1 )
+
+#####from confusion matrix calculate Specificity
+specificity1 = cm1[1,1]/(cm1[1,0]+cm1[1,1])
+print('Specificity : ', specificity1)
+
+################# RF ############################################
+
+from sklearn.ensemble import RandomForestClassifier
+RFclf=RandomForestClassifier(n_estimators=1000)
+RFclf.fit(X_train, y_train)
+#y_pred=RFclf.predict(X_test)
+
+#####Predict probabilities for the test data.
+probsRF = RFclf.predict_proba(X_test)
+
+####Keep Probabilities of the positive class only.
+probsRF = probsRF[:, 1]
+
+auc2 = roc_auc_score(y_test, probsRF)
+print('Random Forest AUC:', auc2)
+
+###Get the ROC Curve
+fpr2, tpr2, thresholds2 = roc_curve(y_test, probsRF)
+fig = plt.figure(figsize = (7,5))
+lw = 2
+plt.plot(fpr2, tpr2, color='green',
+lw=lw, label='RF(AUC = %0.4f)' % auc2)
+plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+
+##plt.title('Receiver operating characteristic')
+plt.title("Random Forest ROC")
+plt.legend(loc="lower right")
+plt.show()
+
+################### RF ############################################
+
+RFclf=RandomForestClassifier(n_estimators=101)
+RFclf.fit(X_train, y_train)
+y_pred=RFclf.predict(X_test)
+
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+print('############# RF ###############')
+print(classification_report(y_test, y_pred))
+
+cm2 = confusion_matrix(y_test,y_pred)
+print('Confusion Matrix : \n', cm2)
+
+total2=sum(sum(cm2))
+#####from confusion matrix calculate accuracy
+accuracy2=(cm1[0,0]+cm1[1,1])/total2
+print ('Accuracy : ', accuracy2)
+
+#####from confusion matrix calculate Prediction Positive
+Prediction_Pos2= cm1[0,0]/(cm1[0,0]+cm1[1,0])
+print ('Prediction value Positive :', Prediction_Pos2)
+
+#####from confusion matrix calculate Prediction Negative
+Prediction_Neg2= cm1[1,1]/(cm1[1,1]+cm1[0,1])
+print ('Prediction value Negative :', Prediction_Neg2)
+
+#####from confusion matrix calculate Sensitivity
+sensitivity2 = cm1[0,0]/(cm1[0,0]+cm1[0,1])
+print('Sensitivity : ', sensitivity2 )
+
+#####from confusion matrix calculate Specificity
+specificity2 = cm1[1,1]/(cm1[1,0]+cm1[1,1])
+print('Specificity : ', specificity2)
+
+####################### SVM ######################################
+
+SVclf2 = SVC(kernel='rbf', C=10, gamma='auto')
+
+#### (kernel='poly', degree=4), kernel='linear', Gaussian kernel: kernel = 'rbf', kernel='sigmoid'
+SVclf2.fit(X_train, y_train)
+
+#y_pred=SVclf2.predict(X_test)
+probsSV = SVclf2.fit(X_train, y_train).decision_function(X_test)
+
+###Compute the AUC Score.
+auc3 = roc_auc_score(y_test, probsSV)
+print('Support Vector Machine AUC:', auc3)
+
+###Get the ROC Curve
+fpr3, tpr3, thresholds3 = roc_curve(y_test, probsSV)
+fig = plt.figure(figsize = (7,5))
+lw = 2
+plt.plot(fpr3, tpr3, color='purple',
+lw=lw, label='SVM(AUC = %0.4f)' % auc3)
+plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+
+##plt.title('Receiver operating characteristic')
+plt.title("Support Vector Machine ROC")
+plt.legend(loc="lower right")
+plt.show()
+
+######################### SVM ######################################
+SVclf = SVC(kernel='poly', degree=3)
+#### can use other kernel depending your data features, e.g., (kernel='poly', degree=4), kernel='linear', Gaussian kernel: kernel = 'rbf', kernel='sigmoid'
+
+SVclf.fit(X_train, y_train)
+y_pred=SVclf.predict(X_test)
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+print('############# SVM ###############')
+print(classification_report(y_test, y_pred))
+
+cm3 = confusion_matrix(y_test,y_pred)
+print('Confusion Matrix : \n', cm3)
+
+total3=sum(sum(cm3))
+
+#####from confusion matrix calculate Prediction Positive
+Prediction_Pos3= cm3[0,0]/(cm3[0,0]+cm3[1,0])
+print ('Predictive value Positive :', Prediction_Pos3)
+
+#####from confusion matrix calculate Prediction Negative
+Prediction_Neg3= cm3[1,1]/(cm3[1,1]+cm3[0,1])
+print ('Predictive value Negative :', Prediction_Neg3)
+
+#####from confusion matrix calculate accuracy
+accuracy3=(cm3[0,0]+cm3[1,1])/total3
+print ('Accuracy : ', accuracy3)
+
+#####from confusion matrix calculate Sensitivity
+sensitivity3 = cm3[0,0]/(cm3[0,0]+cm3[0,1])
+print('Sensitivity : ', sensitivity3 )
+
+#####from confusion matrix calculate Specificity
+specificity3 = cm3[1,1]/(cm3[1,0]+cm3[1,1])
+print('Specificity : ', specificity3)
+
+############################# Logistic Regression ###########################
+
+from sklearn.linear_model import LogisticRegression
+logmodel = LogisticRegression()
+logmodel.fit(X_train, y_train)
+y_pred=logmodel.predict(X_test)
+
+## calculate the fpr and tpr for all thresholds of the classification
+probs = logmodel.predict_proba(X_test)
+preds = probs[:,1]
+auc4 = roc_auc_score(y_test, preds)
+print('Linear Regression AUC4:', auc4)
+
+###Get the ROC Curve
+fpr4, tpr4, thresholds5 = roc_curve(y_test, preds)
+fig = plt.figure(figsize = (7,5))
+lw = 2
+plt.plot(fpr4, tpr4, color='orange',
+lw=lw, label='LR(AUC = %0.4f)' % auc4)
+plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+
+##plt.title('Receiver operating characteristic')
+plt.title("Logistic Regression ROC")
+plt.legend(loc="lower right")
+plt.show()
+
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+print('############# Logistic Reg ###############')
+print(classification_report(y_test, y_pred))
+
+cm4 = confusion_matrix(y_test,y_pred)
+print('Confusion Matrix : \n', cm4)
+
+total4=sum(sum(cm4))
+
+#####from confusion matrix calculate accuracy
+accuracy4=(cm4[0,0]+cm4[1,1])/total4
+print ('Accuracy : ', accuracy1)
+
+#####from confusion matrix calculate Prediction Positive
+Prediction_Pos4 = cm4[0,0]/(cm4[0,0]+cm4[1,0])
+print ('Prediction value Positive :', Prediction_Pos4)
+
+#####from confusion matrix calculate Prediction Negative
+Prediction_Neg4 = cm4[1,1]/(cm4[1,1]+cm4[0,1])
+print ('Prediction value Negative :', Prediction_Neg4)
+
+#####from confusion matrix calculate Sensitivity
+sensitivity4 = cm4[0,0]/(cm4[0,0]+cm4[0,1])
+print('Sensitivity : ', sensitivity4 )
+
+#####from confusion matrix calculate Specificity
+specificity4 = cm4[1,1]/(cm4[1,0]+cm4[1,1])
+print('Specificity : ', specificity4)
+
+###Get the ROC Curve
+fpr, tpr, thresholds = roc_curve(y_test, probsDT)
+fpr2, tpr2, thresholds2 = roc_curve(y_test, probsRF)
+fpr3, tpr3, thresholds3 = roc_curve(y_test, probsSV)
+fpr4, tpr4, thresholds5 = roc_curve(y_test, preds)
+fig = plt.figure(figsize = (10,6))
+lw = 2
+plt.plot(fpr, tpr, color='red',
+lw=lw, label='DT(AUC = %0.4f)' % auc)
+plt.plot(fpr2, tpr2, color='green',
+lw=lw, label='RF(AUC = %0.4f)' % auc2)
+plt.plot(fpr3, tpr3, color='purple',
+lw=lw, label='SVM(AUC = %0.4f)' % auc3)
+plt.plot(fpr4, tpr4, color='orange',
+lw=lw, label='LR(AUC = %0.4f)' % auc4)
+plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+
+##plt.title('Receiver operating characteristic')
+plt.title("ROC")
+plt.legend(loc="lower right")
+plt.show()
+
+print("#########################################################")
+print('Decission Tree AUC:', auc)
+print('Random Forest AUC2:', auc2)
+print('Support Vector Machine AUC3:', auc3)
+print('Linear Regression AUC4:', auc4)
+print("#########################################################")
+
+import statsmodels.formula.api as smf
+model3=smf.ols('CRIM ~ ZN+INDUS+CHAS+NOX+RM+AGE+DIS+RAD+TAX+PTRATIO+B+LSTAT', data=new_data).fit()
+print(model3.summary())
